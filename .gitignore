@@ -1,0 +1,53 @@
+# Compilação Backend (Maven / Java / Kotlin)
+target/
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+replay_pid*
+
+# Dependências Frontend (Node / Vite / Vue)
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDEs e Editores
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.settings/
+.project
+.classpath
+*.sublime-workspace
+*.sublime-project
+
+# Sistema Operacional e Backups
+.DS_Store
+Thumbs.db
+desktop.ini
+*.bak
+*.tmp
+*.temp
+.tmp.driveupload/
+.git_bak/
+scratch/
+
+# Ambientes Locais
+.env
+.env.local
+.env.*.local

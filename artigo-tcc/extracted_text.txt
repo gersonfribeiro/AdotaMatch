@@ -1,0 +1,247 @@
+ADOTAMATCH: SISTEMA DE RECOMENDAÇÃO PARA ADOÇÃO RESPONSÁVEL
+
+DE ANIMAIS
+
+RIBEIRO, Gerson Fernandes
+
+Centro Universitário Governador Ozanam Coelho - UNIFAGOC
+
+Graduação em Ciência da Computação
+
+Fevereiro de 2026
+
+TAVARES, Jacimar - ORIENTADOR
+
+RESUMO
+
+Este trabalho propõe o desenvolvimento do AdotaMatch, uma aplicação digital cujo núcleo computacional é um algoritmo de recomendação baseado em conteúdo para apoiar a adoção responsável de animais. O sistema cruza atributos do perfil do adotante com características dos animais cadastrados, atribuindo pesos a critérios como rotina, moradia, tempo disponível, nível de energia, convivência com crianças e outros animais, experiência prévia e cuidados especiais. Diferente de uma consulta SQL simples, que apenas filtra registros por condições exatas, a proposta calcula uma pontuação de compatibilidade, ordena alternativas parcialmente compatíveis e apresenta justificativas para os principais fatores que influenciaram o resultado. A contribuição central do trabalho está no modelo de recomendação ponderado, explicável e validável por métricas computacionais, mantendo a relevância social da adoção responsável como contexto de aplicação.
+
+Palavras-chave: Sistemas de Recomendação. Filtragem Baseada em Conteúdo. Sistemas de Recomendação Explicáveis. Algoritmo de Compatibilidade. Adoção Responsável. Usabilidade.
+
+INTRODUÇÃO
+
+No processo de adoção de animais, especialmente cães e gatos, a escolha feita pelo adotante costuma depender de fotos, aparência, porte e primeiras impressões. Esses elementos têm valor no contato inicial, mas não bastam para indicar se o animal combina com a rotina da família. O Ministério do Meio Ambiente aponta que o Brasil possui uma população expressiva de cães e gatos e que muitas cidades ainda não contam com estrutura pública de acolhimento, o que desloca parte do trabalho para ONGs e protetores independentes (BRASIL, 2025). Nesse cenário, uma adoção mal avaliada pode gerar frustração para o adotante e novo sofrimento para o animal.
+
+Os motivos que levam à devolução de animais adotados não se limitam a uma única causa. Hawes et al. (2020), ao analisarem retornos de cães e gatos a um abrigo, observaram que cães foram devolvidos com maior frequência por questões comportamentais, enquanto gatos tiveram maior associação com motivos pessoais do adotante. A revisão de Protopopova e Gunter (2017) também mostra que programas de adoção precisam olhar para o comportamento do animal, para as expectativas do tutor e para o apoio oferecido depois da adoção. Esses achados reforçam que a compatibilidade precisa ser tratada antes da entrega do animal, não apenas quando o problema aparece.
+
+Sistemas de recomendação podem auxiliar nesse ponto porque transformam preferências, restrições e características dos itens em uma lista priorizada. Em vez de retornar somente animais que atendam exatamente a uma combinação de campos, o algoritmo pode tratar compatibilidades parciais, pesos diferentes entre critérios e justificativas para a pontuação obtida. Assim, a questão social da adoção funciona como pano de fundo para um problema computacional: modelar, calcular, ordenar e explicar a compatibilidade entre adotantes e animais.
+
+A pergunta de pesquisa definida para este trabalho é: como um algoritmo de recomendação baseado em conteúdo, ponderado e explicável, pode apoiar a escolha de animais de estimação compatíveis com o perfil do adotante e ser validado por métricas computacionais e de usabilidade? A resposta será obtida por meio da construção de um protótipo que cruza dados do adotante com informações cadastradas pelas instituições, calcula uma pontuação de compatibilidade e apresenta recomendações acompanhadas dos fatores que justificam a posição de cada animal na lista.
+
+O objetivo geral é desenvolver um protótipo de sistema de recomendação para adoção responsável de animais, tendo como principal contribuição o algoritmo de compatibilidade. Para atingir esse objetivo, serão definidos cadastros para adotantes, animais e instituições; um formulário de perfil que alimenta o algoritmo; um modelo matemático de pontuação ponderada; uma interface para exibição das recomendações; e um plano de validação composto por matriz de confusão, métricas de classificação, questionário TAM e métricas de usabilidade.
+
+Além desta introdução, o artigo está organizado em seis partes. O referencial teórico apresenta fundamentos de sistemas de recomendação, filtragem baseada em conteúdo, explicabilidade e avaliação de recomendadores. A seção de trabalhos relacionados compara propostas próximas ao AdotaMatch. Em seguida, o algoritmo de recomendação proposto é descrito matematicamente. A metodologia detalha o desenvolvimento do protótipo, o arcabouço tecnológico, os instrumentos de coleta e o plano de validação. Por fim, são apresentados os resultados esperados e as considerações sobre a continuidade da pesquisa.
+
+REFERENCIAL TEÓRICO
+
+Sistemas de recomendação e filtragem baseada em conteúdo
+
+Sistemas de recomendação são aplicações que filtram e ordenam itens para apresentar ao usuário alternativas mais próximas de suas necessidades. Adomavicius e Tuzhilin (2005) descrevem esses sistemas como resposta ao excesso de informação, pois reduzem o esforço de busca e apoiam a tomada de decisão. Entre as abordagens clássicas estão a filtragem colaborativa, a filtragem baseada em conteúdo e os métodos híbridos (RICCI; ROKACH; SHAPIRA, 2015).
+
+Neste trabalho, a filtragem baseada em conteúdo é a abordagem mais adequada porque o domínio não possui, inicialmente, histórico suficiente de avaliações, curtidas ou adoções concluídas para alimentar filtragem colaborativa. A recomendação baseada em conteúdo compara atributos do item com atributos do usuário, permitindo gerar sugestões mesmo com poucos registros anteriores (LOPS; DE GEMMIS; SEMERARO, 2011). No AdotaMatch, os itens são animais cadastrados e o perfil do usuário representa as condições reais do adotante.
+
+Consulta SQL, regra booleana e recomendação ponderada
+
+Uma consulta SQL com cláusula WHERE é útil para recuperar animais disponíveis ou aplicar restrições objetivas, como espécie, cidade ou situação de cadastro. Entretanto, esse tipo de consulta tende a produzir uma resposta booleana: o registro atende ou não atende ao filtro. O problema tratado no AdotaMatch exige mais que isso, pois muitos critérios são graduais e podem ser parcialmente compatíveis. Um animal pode não ser perfeito para todos os critérios, mas ainda ser uma boa opção se os fatores críticos forem atendidos e se a pontuação geral for alta.
+
+Por esse motivo, o sistema de recomendação proposto combina restrições rígidas e critérios ponderados. As restrições rígidas eliminam casos incompatíveis, enquanto os critérios ponderados calculam o grau de adequação entre adotante e animal. Essa separação permite explicar por que um animal ficou acima de outro, ajustar pesos conforme validações futuras e ordenar alternativas sem depender de filtros exatos demais, que poderiam ocultar opções viáveis.
+
+Sistemas de recomendação explicáveis
+
+A apresentação de justificativas aproxima o trabalho do conceito de sistemas de recomendação explicáveis. Zhang e Chen (2020) destacam que explicações ajudam usuários e projetistas a compreender por que determinado item foi recomendado, aumentando transparência, confiança e possibilidade de depuração do modelo. No contexto da adoção, a explicação é importante porque a recomendação envolve uma decisão sensível: o usuário precisa saber se a pontuação foi influenciada por rotina, moradia, energia do animal, convivência familiar ou outro fator.
+
+No AdotaMatch, a explicabilidade será implementada por meio da decomposição da pontuação. Para cada animal recomendado, o sistema deverá mostrar os critérios que mais contribuíram positivamente e os critérios que reduziram a compatibilidade. Assim, a justificativa deixa de ser apenas uma mensagem textual e passa a derivar diretamente do cálculo do algoritmo.
+
+Avaliação de recomendadores e usabilidade
+
+A avaliação de um recomendador pode considerar métricas de classificação e métricas de aceitação pelo usuário. Quando houver dados rotulados, a comparação entre recomendação do algoritmo e resultado observado permite construir uma matriz de confusão, classificando acertos e erros em verdadeiros positivos, falsos positivos, verdadeiros negativos e falsos negativos. A partir dela, podem ser calculadas acurácia, precisão, revocação e F1-score, métricas comuns para avaliar desempenho preditivo.
+
+Além da eficiência computacional, o protótipo precisa ser compreensível e utilizável. Nielsen (1993) aponta que interfaces úteis devem ser fáceis de aprender, eficientes e capazes de evitar erros. O modelo TAM, proposto por Davis (1989), será usado para avaliar percepção de utilidade e facilidade de uso do sistema, enquanto métricas operacionais, como tempo de execução de tarefas, taxa de conclusão, número de erros e pontuação SUS, ajudarão a observar a experiência prática de uso.
+
+TRABALHOS RELACIONADOS
+
+A aplicação de tecnologia no processo de adoção animal já aparece em diferentes propostas acadêmicas e plataformas digitais. Dois trabalhos se destacam por se aproximarem do problema tratado neste projeto e servem como base para comparação.
+
+O estudo desenvolvido por Santos et al. (2024) propõe um sistema de recomendação baseado em conteúdo para adoção de animais, aplicando a técnica do cosseno ponderado. A proposta considera as preferências do adotante e as características dos animais cadastrados, atribuindo pesos para melhorar o cálculo de similaridade. O trabalho é relevante por tratar diretamente da escolha de animais para adoção e por mostrar que a ponderação dos critérios pode produzir recomendações mais precisas que uma comparação simples.
+
+Em outra abordagem, Domingues (2024) apresenta a plataforma Petto, uma aplicação móvel que combina recomendação baseada em preferências com reconhecimento de animais por imagem. O sistema utiliza questionário do usuário, agrupamento por k-means e embeddings de texto para organizar animais com características semelhantes. A proposta também inclui busca por imagem, recurso útil para localizar animais parecidos com uma foto enviada pelo usuário.
+
+O presente projeto diferencia-se por concentrar a recomendação na prevenção de incompatibilidades, tratando a adoção responsável como domínio de aplicação para um problema computacional de ranqueamento. Em relação a Santos et al. (2024), a proposta mantém a ideia de ponderação, mas explicita restrições rígidas, critérios graduais, decomposição da pontuação e plano de validação com matriz de confusão. Em relação à plataforma Petto, o AdotaMatch não prioriza reconhecimento por imagem, mas sim a compatibilidade entre rotina do adotante e necessidades do animal. Com isso, a contribuição esperada está em unir filtragem baseada em conteúdo, explicabilidade e validação objetiva do algoritmo.
+
+ALGORITMO DE RECOMENDAÇÃO PROPOSTO
+
+O algoritmo proposto utiliza uma estratégia de filtragem baseada em conteúdo com pontuação ponderada. Cada adotante é representado por um vetor de perfil U, composto por atributos como tipo de moradia, tempo diário disponível, experiência com animais, presença de crianças, presença de outros animais e preferências declaradas. Cada animal é representado por um vetor A, formado por espécie, porte, idade, nível de energia, sociabilidade, tolerância a ficar sozinho, convivência com crianças e outros animais e necessidade de cuidados especiais.
+
+A compatibilidade entre um adotante u e um animal a será calculada por duas camadas. A primeira é a camada de restrições rígidas, representada por R(u,a). Se alguma condição obrigatória for violada, como animal indisponível, restrição absoluta de convivência ou incompatibilidade crítica de moradia, R(u,a) assume valor 0 e o animal não é recomendado. Caso contrário, R(u,a) assume valor 1 e o animal segue para a pontuação ponderada.
+
+A segunda camada calcula a similaridade ponderada entre perfil e animal. Para cada critério c, define-se um peso w_c, com soma dos pesos igual a 1, e uma função de similaridade s_c(u,a), cujo valor varia de 0 a 1. A pontuação final será dada por:
+
+Score(u,a) = 100 × R(u,a) × Σ(w_c × s_c(u,a))
+
+Nessa fórmula, Score(u,a) varia de 0 a 100. Valores mais altos indicam maior compatibilidade. A eficiência computacional do cálculo, para n animais e k critérios, é O(n x k), pois cada animal disponível é comparado com o perfil do adotante em um conjunto fixo de critérios. Uma consulta SQL poderá ser usada antes do algoritmo para buscar apenas animais ativos ou disponíveis, mas o ranqueamento final dependerá da pontuação ponderada.
+
+Quadro 1 - Pesos iniciais do algoritmo de compatibilidade.
+
+Critério
+
+Peso inicial
+
+Função de similaridade prevista
+
+Energia do animal x tempo disponível
+
+0,20
+
+1 quando energia e disponibilidade são compatíveis; valores menores quando há excesso de demanda.
+
+Convivência com crianças e outros animais
+
+0,20
+
+1 quando o animal é indicado para o contexto familiar informado; 0 quando há incompatibilidade relevante.
+
+Moradia, espaço e porte
+
+0,15
+
+Pontua a adequação entre porte, necessidade de espaço e tipo de moradia.
+
+Tempo sozinho e rotina
+
+0,15
+
+Compara tolerância do animal a ficar sozinho com a rotina diária do adotante.
+
+Experiência do adotante e cuidados especiais
+
+0,15
+
+Reduz pontuação quando o animal exige manejo incompatível com a experiência declarada.
+
+Preferências secundárias
+
+0,15
+
+Considera preferências por espécie, idade ou porte sem eliminar boas alternativas automaticamente.
+
+Fonte: Elaborado pelo autor.
+
+METODOLOGIA
+
+A metodologia deste Trabalho de Conclusão de Curso está organizada em quatro eixos: revisão teórica, modelagem do algoritmo, desenvolvimento do protótipo e validação. Essa organização busca deixar claro que a adoção responsável é o domínio de aplicação, enquanto a contribuição principal para a Ciência da Computação está no algoritmo de recomendação, em sua explicabilidade e na forma de avaliação dos resultados.
+
+O processo foi iniciado com revisão bibliográfica sobre sistemas de recomendação, filtragem baseada em conteúdo, recomendação explicável, avaliação de algoritmos e usabilidade. A partir desse levantamento, serão definidos os critérios do algoritmo, os pesos iniciais e as regras de restrição. Os critérios não serão escolhidos apenas por intuição: eles serão derivados da literatura sobre adoção, dos trabalhos relacionados e da análise de requisitos do domínio.
+
+A coleta de dados será dividida em dois instrumentos distintos. O primeiro é o formulário de perfil do adotante, usado pelo próprio sistema para alimentar o algoritmo com dados de moradia, rotina, experiência e convivência familiar. O segundo é o questionário de avaliação do protótipo, baseado no TAM, usado após a interação com o sistema para medir utilidade percebida, facilidade de uso e intenção de uso. Essa separação evita confundir o formulário que gera recomendações com o formulário que avalia a aceitação da ferramenta.
+
+As perguntas preliminares do Apêndice A correspondem ao questionário de avaliação do protótipo. O formulário de perfil do adotante, por sua vez, será implementado na própria aplicação e seus campos serão definidos a partir dos critérios do algoritmo. Ao final da pesquisa, a versão efetivamente aplicada de cada instrumento e as respostas organizadas serão incorporadas ao relatório final.
+
+A validação dos resultados será composta por duas frentes. Na primeira, o desempenho do algoritmo será avaliado por comparação entre a recomendação produzida e uma classe de referência, que poderá vir de dados reais de adoção, quando disponíveis, ou de avaliação de especialistas/protetores sobre pares adotante-animal. Essa comparação permitirá construir uma matriz de confusão e calcular acurácia, precisão, revocação e F1-score. Na segunda frente, a experiência de uso será avaliada por questionário TAM, escala SUS, taxa de conclusão de tarefas, tempo médio por tarefa e registro de erros ou dúvidas durante o uso.
+
+Quadro 2 - Matriz de confusão planejada para avaliação do algoritmo.
+
+Adoção compatível / classe positiva
+
+Adoção incompatível / classe negativa
+
+Algoritmo recomenda
+
+Verdadeiro positivo (VP)
+
+Falso positivo (FP)
+
+Algoritmo não recomenda
+
+Falso negativo (FN)
+
+Verdadeiro negativo (VN)
+
+Fonte: Elaborado pelo autor.
+
+A partir da matriz, serão calculadas as seguintes métricas: acurácia = (VP + VN)/(VP + FP + FN + VN); precisão = VP/(VP + FP); revocação = VP/(VP + FN); e F1-score = 2 x (precisão x revocação)/(precisão + revocação). Essas métricas permitirão analisar se o algoritmo recomenda bons pares sem ampliar excessivamente recomendações inadequadas.
+
+As respostas coletadas servirão de base para refinar os requisitos do sistema e calibrar os pesos do algoritmo. Entre os requisitos funcionais previstos estão cadastro de animais, cadastro de adotantes, formulário de perfil, cálculo de compatibilidade, visualização do ranking e apresentação das justificativas. Entre os requisitos não funcionais, serão priorizados desempenho, clareza, segurança dos dados pessoais, rastreabilidade dos critérios usados no cálculo e facilidade de uso para pessoas sem conhecimento técnico.
+
+A implementação será organizada em arquitetura MVC, separando a camada de apresentação, a camada de controle, a camada de regras de negócio e a persistência dos dados. A versão inicial deverá utilizar Java com Spring Boot no back-end, Vue.js no front-end e banco de dados relacional. O Spring Boot foi escolhido por facilitar a criação de APIs REST e organizar regras de negócio; o Vue.js, por permitir uma interface reativa e simples de validar com usuários; e o banco relacional, por se adequar aos cadastros estruturados de adotantes, animais, instituições e critérios. O algoritmo ficará na camada de serviço, permitindo testes isolados e futura alteração dos pesos sem reescrever a interface.
+
+Ao término do desenvolvimento, serão realizados testes de funcionamento, testes do algoritmo e testes de usabilidade. Os testes funcionais verificarão cadastro, edição, exclusão, cálculo de compatibilidade e exibição das recomendações. Os testes do algoritmo compararão a classificação recomendada com a classe de referência. Os testes de usabilidade observarão se o usuário consegue preencher o perfil, gerar recomendações, interpretar justificativas e concluir as tarefas sem auxílio.
+
+RESULTADOS ESPERADOS E VALIDAÇÃO PLANEJADA
+
+Como a pesquisa ainda se encontra em desenvolvimento, esta etapa apresenta os resultados esperados e a estratégia de validação que será aplicada na continuidade do trabalho, em vez de dados conclusivos. Espera-se que o principal resultado técnico seja um algoritmo capaz de ranquear animais por compatibilidade, explicar os fatores mais relevantes da pontuação e permitir avaliação objetiva de desempenho.
+
+Espera-se que o protótipo permita verificar se a pontuação ponderada produz recomendações coerentes quando comparada a dados de referência. Caso sejam obtidos dados reais de adoção e acompanhamento, eles serão usados para classificar recomendações como compatíveis ou incompatíveis. Caso essa base ainda não esteja disponível, a validação inicial será feita com cenários simulados e avaliação de especialistas/protetores, deixando a validação com dados reais como etapa posterior.
+
+Os dados do questionário TAM e da escala SUS serão analisados quantitativamente para medir aceitação, utilidade percebida, facilidade de uso e intenção de uso. Já os dados do algoritmo serão analisados por matriz de confusão e métricas de classificação. Essa separação permitirá discutir, de um lado, se o recomendador é computacionalmente coerente e, de outro, se a interface permite que o usuário compreenda e confie nas recomendações.
+
+Na próxima etapa, será priorizada uma versão funcional da aplicação com API, banco de dados e interface web responsiva, permitindo que os testes envolvam o fluxo completo: cadastro do animal, preenchimento do perfil do adotante, cálculo da pontuação, exibição do ranking e apresentação das justificativas.
+
+Também se espera que a discussão final indique os limites da ferramenta. O AdotaMatch deverá funcionar como apoio à triagem e à conversa entre adotantes e instituições, sem substituir avaliação presencial, acompanhamento pós-adoção ou decisão técnica de protetores e profissionais responsáveis. A contribuição esperada não é automatizar a adoção, mas demonstrar como um algoritmo de recomendação explicável pode organizar critérios, reduzir ambiguidade e apoiar decisões mais fundamentadas.
+
+CONSIDERAÇÕES FINAIS
+
+Este trabalho tem como objetivo desenvolver um protótipo de sistema de recomendação para apoiar a adoção responsável de animais, com foco central no algoritmo de compatibilidade. A proposta parte de um problema social relevante, mas o trata como problema computacional de representação de perfis, ponderação de critérios, ranqueamento, explicabilidade e validação.
+
+Com a continuidade do projeto, espera-se que a ferramenta funcione como recurso complementar para ONGs, protetores e adotantes. O AdotaMatch não deverá decidir a adoção, mas ajudar a conversa prévia a ficar mais objetiva por meio de pontuação, ranking e justificativas derivadas do cálculo.
+
+Como próximos passos, propõe-se concluir a versão funcional do protótipo, implementar o algoritmo como serviço testável, aplicar os instrumentos de avaliação, construir a matriz de confusão e ajustar os pesos conforme os dados obtidos. Para trabalhos futuros, recomenda-se integrar a ferramenta a bases reais de abrigos e ONGs, registrar feedback pós-adoção e ampliar os critérios de recomendação com base em experiências reais de adoção.
+
+REFERÊNCIAS
+
+ADOMAVICIUS, G.; TUZHILIN, A. Toward the next generation of recommender systems: a survey of the state-of-the-art and possible extensions. IEEE Transactions on Knowledge and Data Engineering, v. 17, n. 6, p. 734-749, 2005.
+
+AGGARWAL, Charu C. Recommender Systems: The Textbook. Cham: Springer, 2016.
+
+BRASIL. Ministério do Meio Ambiente e Mudança do Clima. Programa Nacional de Manejo Populacional Ético de Cães e Gatos. Disponível em: https://www.gov.br/mma/pt-br/composicao/sbio/dpda/programas-e-projetos/programa-nacional-de-manejo-populacional-etico-de-caes-e-gatos. Acesso em: 2 jun. 2026.
+
+BROOKE, John. SUS: a quick and dirty usability scale. In: JORDAN, P. W. et al. Usability Evaluation in Industry. London: Taylor & Francis, 1996. p. 189-194.
+
+DAVIS, Fred D. Perceived usefulness, perceived ease of use, and user acceptance of information technology. MIS Quarterly, v. 13, n. 3, p. 319-340, 1989.
+
+DOMINGUES, Diogo G. Pet adoption platform with a recommendation system based on user preferences and animal recognition in images. Dissertação de Mestrado. Instituto Politécnico de Lisboa, 2024.
+
+HAWES, S. M. et al. Factors Informing the Return of Adopted Dogs and Cats to an Animal Shelter. Animals, v. 10, n. 9, p. 1573, 2020.
+
+HERLOCKER, Jonathan L.; KONSTAN, Joseph A.; TERVEEN, Loren G.; RIEDL, John T. Evaluating collaborative filtering recommender systems. ACM Transactions on Information Systems, v. 22, n. 1, p. 5-53, 2004.
+
+LOPS, Pasquale; DE GEMMIS, Marco; SEMERARO, Giovanni. Content-based recommender systems: state of the art and trends. In: RICCI, F. et al. Recommender Systems Handbook. Boston: Springer, 2011. p. 73-105.
+
+NIELSEN, Jakob. Usability Engineering. Boston: Academic Press, 1993.
+
+PROTOPOPOVA, Alexandra; GUNTER, Lisa M. Adoption and relinquishment interventions at the animal shelter: a review. Animal Welfare, v. 26, n. 1, p. 35-48, 2017.
+
+POWERS, David M. W. Evaluation: from precision, recall and F-measure to ROC, informedness, markedness and correlation. Journal of Machine Learning Technologies, v. 2, n. 1, p. 37-63, 2011.
+
+RICCI, Francesco; ROKACH, Lior; SHAPIRA, Bracha. Recommender Systems Handbook. 2. ed. New York: Springer, 2015.
+
+SANTOS, Monaliza Carvalho et al. Um sistema de recomendação baseado em conteúdo para adoção de animais utilizando a técnica do cosseno ponderado. Texto Livre, Belo Horizonte, v. 17, p. e42708, 2024. DOI: 10.1590/1983-3652.2024.42708.
+
+SOMMERVILLE, Ian. Engenharia de software. 9. ed. São Paulo: Pearson, 2011.
+
+TINTAREV, Nava; MASTHOFF, Judith. A survey of explanations in recommender systems. In: IEEE International Conference on Data Engineering Workshop. Istanbul: IEEE, 2007. p. 801-810.
+
+ZHANG, Yongfeng; CHEN, Xu. Explainable recommendation: a survey and new perspectives. Foundations and Trends in Information Retrieval, v. 14, n. 1, p. 1-101, 2020. DOI: 10.1561/1500000066.
+
+APÊNDICE A - INSTRUMENTOS DE COLETA E AVALIAÇÃO
+
+Este apêndice apresenta a separação entre os instrumentos previstos na pesquisa: o formulário de perfil, que alimenta o algoritmo de recomendação, e o questionário de avaliação, que mede a percepção dos usuários após o uso do protótipo.
+
+Instrumento 1 - Formulário de perfil do adotante
+
+O formulário de perfil será implementado na aplicação e coletará dados usados diretamente no cálculo de compatibilidade: tipo de moradia, presença de crianças, presença de outros animais, tempo diário disponível, experiência prévia com animais, preferência por espécie, porte desejado, tolerância a cuidados especiais e disponibilidade para adaptação do ambiente.
+
+Instrumento 2 - Cadastro de características dos animais
+
+O cadastro do animal registrará espécie, idade, porte, nível de energia, sociabilidade, tolerância a ficar sozinho, convivência com crianças, convivência com outros animais, necessidade de espaço, cuidados especiais e status de disponibilidade. Esses dados formarão o vetor de atributos comparado com o perfil do adotante.
+
+Instrumento 3 - Questionário TAM e usabilidade
+
+Após interagir com o protótipo, os participantes responderão a afirmações em escala Likert sobre utilidade percebida, facilidade de uso, clareza das justificativas, confiança na recomendação e intenção de uso. Também será aplicada a escala SUS para obter uma medida padronizada de usabilidade.
+
+Métricas observacionais
+
+Durante o teste, serão registrados taxa de conclusão das tarefas, tempo médio para preencher o perfil, tempo para interpretar a recomendação, número de erros, dúvidas relatadas e necessidade de ajuda. Esses dados complementarão o questionário e permitirão identificar ajustes de interface.
+
+Validação do algoritmo
+
+Quando houver dados reais ou avaliação de especialistas, cada par adotante-animal será classificado como compatível ou incompatível. A recomendação do algoritmo será comparada a essa classe de referência para formar a matriz de confusão e calcular acurácia, precisão, revocação e F1-score.

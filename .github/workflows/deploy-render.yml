@@ -1,0 +1,69 @@
+name: Deploy da demonstração no Render
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: adotamatch-render
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Baixar o commit
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Construir a imagem da demonstração
+        run: docker build --tag adotamatch-demo .
+
+      - name: Verificar a demonstração por HTTP
+        shell: bash
+        run: |
+          docker run --detach --name adotamatch-demo --publish 127.0.0.1:10000:10000 adotamatch-demo
+          curl --fail --silent --show-error --retry 30 --retry-connrefused \
+            --retry-delay 3 --max-time 5 http://127.0.0.1:10000/api/v1/pets >/dev/null
+          python3 specs/ensaio_adotamatch.py http://127.0.0.1:10000
+
+      - name: Mostrar os logs da demonstração em caso de falha
+        if: failure()
+        run: docker logs adotamatch-demo 2>/dev/null || true
+
+      - name: Solicitar deploy do commit verificado
+        shell: bash
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [[ -z "$RENDER_DEPLOY_HOOK_URL" ]]; then
+            echo "::warning::Deploy não solicitado. Configure o secret RENDER_DEPLOY_HOOK_URL."
+            echo "Validação concluída. Deploy não solicitado porque o hook ainda não foi configurado." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          latest_sha=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')
+          if [[ "$latest_sha" != "$GITHUB_SHA" ]]; then
+            echo "Deploy dispensado porque main já tem um commit mais recente." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            --max-time 30 --request POST --url-query "ref=$GITHUB_SHA" "$RENDER_DEPLOY_HOOK_URL")
+          case "$status" in
+            200|202)
+              echo "Render aceitou a solicitação de deploy do commit `$GITHUB_SHA` (HTTP $status)." >> "$GITHUB_STEP_SUMMARY"
+              ;;
+            *)
+              echo "::error::O Render recusou a solicitação de deploy (HTTP $status)."
+              exit 1
+              ;;
+          esac

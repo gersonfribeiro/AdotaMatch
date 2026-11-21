@@ -9,6 +9,9 @@ import LoginView from '@/features/auth/views/LoginView.vue';
 import RegisterView from '@/features/auth/views/RegisterView.vue';
 import MyAdoptionsView from '@/features/adopter/views/MyAdoptionsView.vue';
 
+// Configuração
+import { PUBLIC_DEMO } from '@/shared/constants/C_API_CONFIG';
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -48,5 +51,5 @@ const routes: RouteRecordRaw[] = [
 
 export const router = createRouter({
   history: createWebHistory(),
-  routes,
+  routes: PUBLIC_DEMO ? routes.filter((pRoute) => ['/', '/match', '/pets'].includes(pRoute.path)) : routes,
 });

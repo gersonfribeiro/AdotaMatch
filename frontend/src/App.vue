@@ -4,12 +4,18 @@ import Toast from 'primevue/toast';
 
 // Componentes
 import BaseNavbar from '@/shared/components/BaseNavbar.vue';
+
+// Configuração
+import { PUBLIC_DEMO } from '@/shared/constants/C_API_CONFIG';
 </script>
 
 <template>
   <div class="min-h-screen flex flex-col bg-slate-50">
     <Toast position="top-right" />
     <BaseNavbar />
+    <p v-if="PUBLIC_DEMO" class="bg-emerald-50 px-4 py-2 text-center text-sm text-emerald-800">
+      Demonstração acadêmica com dados fictícios. Use um perfil de exemplo no questionário.
+    </p>
     <main class="flex-1">
       <RouterView />
     </main>

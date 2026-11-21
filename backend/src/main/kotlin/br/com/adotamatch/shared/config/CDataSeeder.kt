@@ -9,67 +9,24 @@ import br.com.adotamatch.features.pet.repository.IPetRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.env.Environment
 
-import br.com.adotamatch.features.auth.domain.CUser
-import br.com.adotamatch.features.auth.domain.EUserRole
-import br.com.adotamatch.features.auth.repository.IUserRepository
-import java.nio.charset.StandardCharsets
-import java.security.MessageDigest
-import java.util.Base64
 
 /**
- * @description Classe de configuração para semear dados representativos de usuários e animais no AdotaMatch.
+ * @description Classe de configuração para semear dados representativos de animais no AdotaMatch.
  */
 @Configuration
-class CDataSeeder {
+class CDataSeeder(private val environment: Environment) {
 
     /**
      * @description Executa a carga inicial de animais diversificados para testes da banca e do usuário no MVP.
      * @param pPetRepository Repositório JPA de animais.
-     * @param pUserRepository Repositório JPA de usuários.
      * @returns Instância de CommandLineRunner gerenciada pelo Spring Boot.
      */
     @Bean
-    fun seedSampleData(pPetRepository: IPetRepository, pUserRepository: IUserRepository): CommandLineRunner {
+    fun seedSampleData(pPetRepository: IPetRepository): CommandLineRunner {
         return CommandLineRunner {
-            if (pUserRepository.count() == 0L) {
-                fun hash(pPwd: String): String {
-                    val md = MessageDigest.getInstance("SHA-256")
-                    return Base64.getEncoder().encodeToString(md.digest(pPwd.toByteArray(StandardCharsets.UTF_8)))
-                }
-
-                pUserRepository.saveAll(
-                    listOf(
-                        CUser(
-                            name = "Gerson Fernandes Ribeiro",
-                            email = "adotante@adotamatch.com.br",
-                            passwordHash = hash("senha123"),
-                            role = EUserRole.ADOPTER,
-                            phone = "32999998888",
-                            city = "Ubá - MG"
-                        ),
-                        CUser(
-                            name = "Mariana Silva (Protetora)",
-                            email = "protetor@adotamatch.com.br",
-                            passwordHash = hash("senha123"),
-                            role = EUserRole.GUARDIAN,
-                            phone = "32988887777",
-                            city = "Ubá - MG"
-                        ),
-                        CUser(
-                            name = "Pet Shop & Resgate Mundo Animal",
-                            email = "petshop@adotamatch.com.br",
-                            passwordHash = hash("senha123"),
-                            role = EUserRole.SHELTER,
-                            phone = "32998765432",
-                            city = "Ubá - MG",
-                            document = "12.345.678/0001-90",
-                            organizationName = "Mundo Animal Pet Shop Ltda"
-                        )
-                    )
-                )
-            }
-
+            val publicDemo = environment.matchesProfiles("demo")
             if (pPetRepository.count() == 0L) {
                 pPetRepository.saveAll(
                     listOf(
@@ -92,9 +49,9 @@ class CDataSeeder {
                             videoUrl = "https://www.w3schools.com/html/mov_bbb.mp4",
                             biography = "Caramelo foi resgatado em uma praça pública no centro de Ubá. É o típico cão companheiro, leal e extremamente dócil com todos.",
                             behavioralNotes = "Extremamente equilibrado. Gosta de caminhar no final da tarde, não late por qualquer barulho e convive harmoniosamente com crianças e gatos.",
-                            shelterName = "ONG Amor de Patas",
+                            shelterName = "Abrigo fictício",
                             shelterCity = "Ubá - MG",
-                            contactWhatsapp = "32999887766"
+                            contactWhatsapp = ""
                         ),
                         CPet(
                             name = "Luna",
@@ -115,9 +72,9 @@ class CDataSeeder {
                             videoUrl = "https://www.w3schools.com/html/mov_bbb.mp4",
                             biography = "Luna foi acolhida após abandono em uma caixa de papelão. É carinhosa, porte pequeno e adora colo.",
                             behavioralNotes = "Excelente para apartamentos. Muito tranquila durante o expediente de home office, adora cochilar aos pés do tutor.",
-                            shelterName = "Pet Shop & Resgate Mundo Animal",
+                            shelterName = "Abrigo fictício",
                             shelterCity = "Ubá - MG",
-                            contactWhatsapp = "32998765432"
+                            contactWhatsapp = ""
                         ),
                         CPet(
                             name = "Thor",
@@ -138,9 +95,9 @@ class CDataSeeder {
                             videoUrl = "https://www.w3schools.com/html/mov_bbb.mp4",
                             biography = "Thor é um mestiço de labrador com muita vitalidade, resgatado após ser mantido acorrentado em lote vago.",
                             behavioralNotes = "Jovem hiperativo com muita força física. Requer tutor com experiência prévia, casa com quintal amplo e exercícios vigorosos diários. Não recomendado para casas com crianças pequenas.",
-                            shelterName = "SOS Animais & Cia",
+                            shelterName = "Abrigo fictício",
                             shelterCity = "Visconde do Rio Branco - MG",
-                            contactWhatsapp = "32991234567"
+                            contactWhatsapp = ""
                         ),
                         CPet(
                             name = "Mia",
@@ -161,9 +118,9 @@ class CDataSeeder {
                             videoUrl = "https://www.w3schools.com/html/mov_bbb.mp4",
                             biography = "Mia foi resgatada ainda filhote no motor de um caminhão. É dócil, ronrona ao menor carinho e gosta de brinquedos com penas.",
                             behavioralNotes = "Gata dócil e independente. Lida bem com períodos em que a família está fora trabalhando, adaptada a apartamento telado.",
-                            shelterName = "Associação Bichos & Cia",
+                            shelterName = "Abrigo fictício",
                             shelterCity = "Ubá - MG",
-                            contactWhatsapp = "32997654321"
+                            contactWhatsapp = ""
                         ),
                         CPet(
                             name = "Frajola",
@@ -184,9 +141,9 @@ class CDataSeeder {
                             videoUrl = "https://www.w3schools.com/html/mov_bbb.mp4",
                             biography = "Frajola é um gato preto e branco com olhar expressivo. Muito sociável, adora observar a rua pela janela telada.",
                             behavioralNotes = "Sociável e pacífico. Convive bem com cães calmos e não se assusta facilmente com barulhos da casa.",
-                            shelterName = "Pet Shop & Clínica Veterinária Bem Estar",
+                            shelterName = "Abrigo fictício",
                             shelterCity = "Ubá - MG",
-                            contactWhatsapp = "32996543210"
+                            contactWhatsapp = ""
                         ),
                         CPet(
                             name = "Pipoca",
@@ -207,11 +164,15 @@ class CDataSeeder {
                             videoUrl = "https://www.w3schools.com/html/mov_bbb.mp4",
                             biography = "Pipoca é um filhote alegre e cheio de curiosidade. Resgatado com a mãe e irmãos perto da rodoviária.",
                             behavioralNotes = "Filhote carinhoso e receptivo a comandos básicos. Precisa de tutor disposto a ensinar hábitos de higiene e passeios diários.",
-                            shelterName = "ONG Amor de Patas",
+                            shelterName = "Abrigo fictício",
                             shelterCity = "Ubá - MG",
-                            contactWhatsapp = "32999887766"
+                            contactWhatsapp = ""
                         )
-                    )
+                    ).onEach { pPet ->
+                        if (publicDemo) {
+                            pPet.videoUrl = null
+                        }
+                    }
                 )
             }
         }

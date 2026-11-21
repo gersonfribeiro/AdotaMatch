@@ -17,6 +17,9 @@ import { CPetService } from '@/features/pet/services/CPetService';
 import VideoModal from '@/shared/components/VideoModal.vue';
 import AdoptionIntentModal from '@/features/adopter/components/AdoptionIntentModal.vue';
 
+// Configuração
+import { PUBLIC_DEMO } from '@/shared/constants/C_API_CONFIG';
+
 // Types e Interfaces
 import type { IPet } from '@/features/pet/models/IPet';
 
@@ -273,6 +276,7 @@ onMounted(() => {
             @click="handleOpenDetails(pet)"
           />
           <Button
+            v-if="!PUBLIC_DEMO"
             label="Quero Adotar"
             icon="pi pi-heart"
             size="small"
@@ -337,6 +341,7 @@ onMounted(() => {
         <div class="pt-4 flex justify-end gap-3 border-t border-slate-100">
           <Button label="Fechar" severity="secondary" text @click="isDetailsModalVisible = false" />
           <Button
+            v-if="!PUBLIC_DEMO"
             label="Manifestar Interesse em Adotar"
             icon="pi pi-heart"
             class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2.5 rounded-xl"
@@ -354,7 +359,7 @@ onMounted(() => {
     />
 
     <AdoptionIntentModal
-      v-if="selectedPet"
+      v-if="!PUBLIC_DEMO && selectedPet"
       v-model:visible="isIntentModalVisible"
       :pet-id="selectedPet.id"
       :pet-name="selectedPet.name"

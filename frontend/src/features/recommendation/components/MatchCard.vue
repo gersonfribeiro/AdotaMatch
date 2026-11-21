@@ -9,6 +9,9 @@ import Tag from 'primevue/tag';
 // Componentes
 import ExplanationBanner from '@/features/recommendation/components/ExplanationBanner.vue';
 import AdoptionIntentModal from '@/features/adopter/components/AdoptionIntentModal.vue';
+
+// Configuração
+import { PUBLIC_DEMO } from '@/shared/constants/C_API_CONFIG';
 import VideoModal from '@/shared/components/VideoModal.vue';
 
 // Types e Interfaces
@@ -172,7 +175,7 @@ function formatSize(pSize: string): string {
           />
         </div>
 
-        <div class="flex items-center gap-3">
+        <div v-if="!PUBLIC_DEMO" class="flex items-center gap-3">
           <Button
             label="Manifestar Interesse em Adotar"
             icon="pi pi-heart"
@@ -185,6 +188,7 @@ function formatSize(pSize: string): string {
 
     <!-- Modais de Ação -->
     <AdoptionIntentModal
+      v-if="!PUBLIC_DEMO"
       v-model:visible="isIntentModalVisible"
       :pet-id="props.match.petId"
       :pet-name="props.match.petName"

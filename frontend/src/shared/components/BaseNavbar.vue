@@ -9,6 +9,9 @@ import Tag from 'primevue/tag';
 // Stores
 import { useAuthStore } from '@/features/auth/stores/useAuthStore';
 
+// Configuração
+import { PUBLIC_DEMO } from '@/shared/constants/C_API_CONFIG';
+
 // Router & Stores
 const router = useRouter();
 const route = useRoute();
@@ -69,7 +72,7 @@ function handleLogout(): void {
 
         <!-- Links Específicos por Perfil Autenticado -->
         <Button
-          v-if="authStore.isAdopter"
+          v-if="!PUBLIC_DEMO && authStore.isAdopter"
           label="Minhas Adoções"
           icon="pi pi-list-check"
           :text="!isActive('/my-adoptions')"
@@ -79,7 +82,7 @@ function handleLogout(): void {
         />
 
         <Button
-          v-if="authStore.isShelter || authStore.isGuardian"
+          v-if="!PUBLIC_DEMO && (authStore.isShelter || authStore.isGuardian)"
           :label="authStore.isGuardian ? 'Meus Animais p/ Doação' : 'Painel do Pet Shop / Abrigo'"
           icon="pi pi-building"
           :text="!isActive('/shelter')"
@@ -89,7 +92,7 @@ function handleLogout(): void {
         />
 
         <!-- Bloco de Autenticação / Perfil do Usuário -->
-        <div class="ml-2 pl-2 border-l border-slate-200 flex items-center gap-2">
+        <div v-if="!PUBLIC_DEMO" class="ml-2 pl-2 border-l border-slate-200 flex items-center gap-2">
           <!-- Usuário Autenticado -->
           <template v-if="authStore.isAuthenticated">
             <div class="hidden lg:flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">

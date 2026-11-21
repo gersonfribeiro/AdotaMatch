@@ -18,12 +18,12 @@ import kotlin.math.round
 class CWeightedScorer {
 
     companion object {
-        const val WEIGHT_ENERGY_TIME = 0.25
-        const val WEIGHT_SOLITARY_ROUTINE = 0.25
+        const val WEIGHT_ENERGY_TIME = 0.20
+        const val WEIGHT_SOLITARY_ROUTINE = 0.15
         const val WEIGHT_HOUSING_SIZE = 0.15
-        const val WEIGHT_KIDS_PETS = 0.10
-        const val WEIGHT_EXPERIENCE_CARE = 0.10
-        const val WEIGHT_LLM_SEMANTIC = 0.15
+        const val WEIGHT_KIDS_PETS = 0.15
+        const val WEIGHT_EXPERIENCE_CARE = 0.15
+        const val WEIGHT_LLM_SEMANTIC = 0.20
     }
 
     /**
